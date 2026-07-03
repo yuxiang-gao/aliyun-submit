@@ -1,0 +1,13 @@
+display_name: ""
+image: acr-pai-r9x4-registry.cn-beijing.cr.aliyuncs.com/xxx/xxxx:xxx
+user_command: python -m my_awesome_project.train --config configs/train/default.yaml
+priority: 9
+cpu: 8
+memory: 64Gi
+pod_count: 4
+gpu: 8
+data_sources:
+  - data_source_id: ""
+    mount_path: /mnt/oss/
+  - data_source_id: ""
+    mount_path: /mnt/cpfs/
