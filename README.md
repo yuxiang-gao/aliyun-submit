@@ -10,7 +10,7 @@ Works with Cursor, Claude Code, Codex, and other agents that support the [Agent 
 npx skills add yuxiang-gao/aliyun-submit -g -y
 ```
 
-Replace `<github-owner>` with the GitHub user or org that hosts this repository. The `-g` flag installs the skill globally; omit it for a project-local install.
+The `-g` flag installs the skill globally; omit it for a project-local install.
 
 Browse skills at [skills.sh](https://skills.sh/).
 
@@ -29,8 +29,7 @@ ALIBABA_CLOUD_ACCESS_KEY_ID=...
 ALIBABA_CLOUD_ACCESS_KEY_SECRET=...
 ALIYUN_PAI_WORKSPACE_ID=...
 ALIYUN_PAI_RESOURCE_ID=...
-# optional
-ALIYUN_REGION_ID=cn-beijing
+ALIYUN_REGION_ID=...
 ```
 
 Never commit credentials. The script and skill instructions avoid printing secret values.

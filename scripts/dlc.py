@@ -63,7 +63,7 @@ class AliyunPaiDataSourceMount:
 
 @dataclass(frozen=True)
 class AliyunPaiJobConfig:
-    region_id: str = field(default_factory=lambda: os.environ.get("ALIYUN_REGION_ID", "cn-beijing"))
+    region_id: str | None = field(default_factory=lambda: os.environ.get("ALIYUN_REGION_ID"))
     workspace_id: str | None = field(default_factory=lambda: os.environ.get("ALIYUN_PAI_WORKSPACE_ID"))
     resource_id: str | None = field(default_factory=lambda: os.environ.get("ALIYUN_PAI_RESOURCE_ID"))
     display_name: str | None = None
@@ -224,7 +224,7 @@ def make_dlc_client(region_id: str) -> object:
 def submit_job(cfg: AliyunPaiJobConfig) -> str:
     from alibabacloud_pai_dlc20201203.models import CreateJobRequest  # noqa: PLC0415
 
-    client = make_dlc_client(cfg.region_id)
+    client = make_dlc_client(require_region_id(cfg.region_id))
     request = CreateJobRequest().from_map(build_create_job_request_payload(cfg))
     response = client.create_job(request)
     return response.body.job_id
@@ -239,8 +239,14 @@ def _print_json(value: object) -> None:
     print(json.dumps(value, indent=2, sort_keys=True))
 
 
+def require_region_id(region_id: str | None) -> str:
+    if not region_id:
+        raise ValueError("region_id is required; set ALIYUN_REGION_ID in .env or pass --region_id")
+    return region_id
+
+
 def _region_from_args(region_id: str | None) -> str:
-    return region_id or os.environ.get("ALIYUN_REGION_ID", "cn-beijing")
+    return require_region_id(region_id or os.environ.get("ALIYUN_REGION_ID"))
 
 
 def _get_job_body(client: object, job_id: str, need_detail: bool = True) -> dict[str, Any]:
@@ -252,7 +258,7 @@ def _get_job_body(client: object, job_id: str, need_detail: bool = True) -> dict
 
 def _add_runtime_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
-        "--region_id", default=None, help="Aliyun region id; defaults to ALIYUN_REGION_ID or cn-beijing"
+        "--region_id", default=None, help="Aliyun region id; defaults to ALIYUN_REGION_ID from .env"
     )
     parser.add_argument("--env_path", type=Path, default=None, help="dotenv path; defaults to ./.env in the cwd")
 
