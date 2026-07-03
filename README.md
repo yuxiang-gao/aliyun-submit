@@ -1,8 +1,6 @@
 # aliyun-submit
 
-Agent skill for submitting and managing Alibaba Cloud PAI DLC training jobs. The skill bundles a self-contained [`scripts/dlc.py`](scripts/dlc.py) CLI and an [`example.yaml`](example.yaml) job config template.
-
-Works with Cursor, Claude Code, Codex, and other agents that support the [Agent Skills](https://agentskills.io) format.
+Agent skill for submitting and managing Alibaba Cloud PAI DLC jobs. Includes [`scripts/dlc.py`](scripts/dlc.py) (uv script CLI) and [`example.yaml`](example.yaml) (job config template).
 
 ## Install
 
@@ -10,76 +8,32 @@ Works with Cursor, Claude Code, Codex, and other agents that support the [Agent 
 npx skills add yuxiang-gao/aliyun-submit -g -y
 ```
 
-The `-g` flag installs the skill globally; omit it for a project-local install.
+Use `-g` for a global install; omit it for project-local. See [skills.sh](https://skills.sh/) for more.
 
-Browse skills at [skills.sh](https://skills.sh/).
+## Setup
 
-## Prerequisites
-
-- [uv](https://docs.astral.sh/uv/) on your PATH
-- A `.env` file with Aliyun credentials (see below)
-- A job config YAML for your workspace (copy and edit `example.yaml`)
-
-## Credentials
-
-Create `.env` in your project root (or pass `--env_path` to the script):
+1. Install [uv](https://docs.astral.sh/uv/).
+2. Add a `.env` in your project:
 
 ```env
 ALIBABA_CLOUD_ACCESS_KEY_ID=...
 ALIBABA_CLOUD_ACCESS_KEY_SECRET=...
 ALIYUN_PAI_WORKSPACE_ID=...
 ALIYUN_PAI_RESOURCE_ID=...
-ALIYUN_REGION_ID=...
+ALIYUN_REGION_ID=cn-beijing
 ```
 
-Never commit credentials. The script and skill instructions avoid printing secret values.
+3. Copy `example.yaml`, fill in image, mounts, and resource specs.
 
-## Usage
+## Quick start
 
-From the installed skill directory (for example `~/.cursor/skills/aliyun-submit`):
+1. Install the skill (above) and restart your agent session if needed.
+2. In your training project, add `.env` credentials and a job config YAML (see Setup).
+3. Ask your agent to submit or manage DLC jobs in plain language. For example:
 
-```bash
-# dry run — verify payload before submitting
-uv run scripts/dlc.py submit \
-  --config_path /path/to/your/job.yaml \
-  --display_name my-job-smoke \
-  --user_command 'sleep 100' \
-  --dry_run true \
-  --env_path /path/to/your/.env
+   - "Launch my training run on Aliyun DLC using `job.yaml`, 4 pods."
+   - "Why did DLC job `dlc-xxxxx` fail? Check its logs and events."
+   - "Show GPU utilization for job `dlc-xxxxx`."
+   - "Stop job `dlc-xxxxx`."
 
-# live submit
-uv run scripts/dlc.py submit \
-  --config_path /path/to/your/job.yaml \
-  --display_name my-job-smoke \
-  --user_command 'sleep 100' \
-  --env_path /path/to/your/.env
-```
-
-Inspect or stop a job:
-
-```bash
-uv run scripts/dlc.py status dlc-job-id --env_path /path/to/your/.env
-uv run scripts/dlc.py logs dlc-job-id --max_lines 200 --env_path /path/to/your/.env
-uv run scripts/dlc.py events dlc-job-id --env_path /path/to/your/.env
-uv run scripts/dlc.py metrics dlc-job-id --env_path /path/to/your/.env
-uv run scripts/dlc.py stop dlc-job-id --env_path /path/to/your/.env
-```
-
-When your shell cwd is already the project that contains `.env`, you can omit `--env_path`.
-
-## Job config
-
-Copy `example.yaml` into your project and fill in workspace, resource quota, container image, data source mounts, and per-pod CPU/GPU/memory. CLI flags override YAML values.
-
-Always dry-run before a live submit and confirm `DisplayName`, `WorkspaceId`, `ResourceId`, `UserCommand`, image, pod count, and resource limits in the printed payload.
-
-## What the agent skill covers
-
-After installation, agents load [`SKILL.md`](SKILL.md) when you ask about Aliyun DLC job submission. The skill focuses on:
-
-- credential and config setup
-- dry-run then live submit workflow
-- inspecting logs, events, and metrics across pods
-- stopping misconfigured jobs before retry
-
-Project-specific training setup (syncing code to shared storage, composing `user_command` env blocks, etc.) stays in your own repo — the skill only handles DLC API submission.
+The agent loads [`SKILL.md`](SKILL.md) and uses the bundled `scripts/dlc.py` on your behalf. Mention Aliyun, PAI DLC, or job submission to trigger it in agents that auto-select skills.
